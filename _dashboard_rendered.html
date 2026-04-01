@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="bg-overlay"></div>
+  <nav class="topbar clean">
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <h1>Dashboard</h1>
+      <p class="subtitle">Track session results, filter records, and export your analyzed dataset.</p>
+    </section>
+
+    
+
+    <div class="card">
+      <h2>Summary</h2>
+      
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="k">Total Predictions</div>
+            <div class="v">100</div>
+          </div>
+          <div class="summary-item">
+            <div class="k">Fake Reviews</div>
+            <div class="v">29 (29.0%)</div>
+          </div>
+          <div class="summary-item">
+            <div class="k">Genuine Reviews</div>
+            <div class="v">71 (71.0%)</div>
+          </div>
+        </div>
+      
+    </div>
+
+    <div class="card">
+      <h2>Trends</h2>
+      <canvas id="trendChart" height="120"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>Filters & Export</h2>
+      <form method="get" action="/dashboard" class="filters-row">
+        <input type="text" name="q" placeholder="Search reviews" value="" class="full">
+        <select name="filter" class="full">
+          <option value="all" selected>All</option>
+          <option value="fake" >Fake</option>
+          <option value="genuine" >Genuine</option>
+        </select>
+        <select name="per_page" class="full">
+          <option value="10" >10</option>
+          <option value="20" selected>20</option>
+          <option value="50" >50</option>
+        </select>
+        <button type="submit">Apply</button>
+        <a class="button" href="/dashboard/export?q=&amp;filter=all">Export CSV</a>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Recent Predictions</h2>
+      
+        <div class="table-wrap"><table border="1" class="dataframe pred-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>timestamp</th>
+      <th>review</th>
+      <th>prediction</th>
+      <th>prob</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Very satisfied with the purchase. Works as expected.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.666520</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Trust me this is the best no doubt at all.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.909969</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Exactly what I needed. Happy with the performance.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.842816</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Trust me this is the best no doubt at all.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.909969</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>This is the greatest thing in the universe!!!</td>
+      <td>FAKE REVIEW</td>
+      <td>0.780407</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>The product quality is excellent and delivery was on time.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.873598</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Best product ever!!! Must buy now!!!</td>
+      <td>FAKE REVIEW</td>
+      <td>0.923796</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Most incredible product ever made by humans.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.789558</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>I have been using it for a month and it performs well.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.641164</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Five stars without even thinking just buy it.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.711520</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Installation was easy and instructions were clear.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.688534</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Packaging was neat and the product matches the description.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.740322</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Best product ever!!! Must buy now!!!</td>
+      <td>FAKE REVIEW</td>
+      <td>0.923796</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Exactly what I needed. Happy with the performance.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.842816</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Amazing amazing amazing totally life changing!!!</td>
+      <td>FAKE REVIEW</td>
+      <td>0.975971</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Packaging was neat and the product matches the description.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.740322</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Installation was easy and instructions were clear.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.688534</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Superb product 100% guaranteed best in world.</td>
+      <td>FAKE REVIEW</td>
+      <td>0.899166</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Five stars without even thinking just buy it.</td>
+      <td>GENUINE REVIEW</td>
+      <td>0.711520</td>
+    </tr>
+    <tr>
+      <td>2026-04-01T20:48:50.711986</td>
+      <td>Superb product 100% guaranteed best in world.</td>
+      <td>FAKE REVIEW</td>
+      <td>0.899166</td>
+    </tr>
+  </tbody>
+</table></div>
+      
+
+      <div class="pagination-row">
+        <div>Page 1 of 5</div>
+        
+        
+          <a href="/dashboard?page=2&amp;per_page=20&amp;q=&amp;filter=all">Next</a>
+        
+      </div>
+    </div>
+
+    <p class="footer-link"><a href="/">Back to Home</a></p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const chartData = {"fake": [29], "genuine": [71], "labels": ["2026-04-01"]} || null;
+    if (chartData && Array.isArray(chartData.labels) && chartData.labels.length > 0) {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+
+      // create gradient fills
+      const gradFake = ctx.createLinearGradient(0,0,0,200);
+      gradFake.addColorStop(0, 'rgba(255,107,107,0.28)');
+      gradFake.addColorStop(1, 'rgba(255,107,107,0.02)');
+
+      const gradGenuine = ctx.createLinearGradient(0,0,0,200);
+      gradGenuine.addColorStop(0, 'rgba(107,229,138,0.28)');
+      gradGenuine.addColorStop(1, 'rgba(107,229,138,0.02)');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartData.labels,
+          datasets: [
+            {
+              label: 'Fake',
+              data: chartData.fake,
+              borderColor: '#ff6b6b',
+              backgroundColor: gradFake,
+              fill: true,
+              tension: 0.36,
+              pointRadius: 3,
+              borderWidth: 2
+            },
+            {
+              label: 'Genuine',
+              data: chartData.genuine,
+              borderColor: '#2bb673',
+              backgroundColor: gradGenuine,
+              fill: true,
+              tension: 0.36,
+              pointRadius: 3,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive:true,
+          plugins:{
+            legend:{position:'top', labels:{usePointStyle:true}}
+          },
+          scales: {
+            x: { grid: { display:false } },
+            y: { grid: { color: 'rgba(16,42,67,0.04)' }, beginAtZero:true }
+          }
+        }
+      });
+    } else {
+      const canvas = document.getElementById('trendChart');
+      const wrap = canvas && canvas.parentElement;
+      if (wrap) {
+        const msg = document.createElement('p');
+        msg.textContent = 'No trend data available for the current selection.';
+        wrap.appendChild(msg);
+      }
+    }
+  </script>
+</body>
+</html>

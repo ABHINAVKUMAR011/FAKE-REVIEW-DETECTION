@@ -20,6 +20,13 @@
       <p class="subtitle">Track session results, filter records, and export your analyzed dataset.</p>
     </section>
 
+    {% if dashboard_error %}
+      <div class="card">
+        <h2>Dashboard Error</h2>
+        <p>{{ dashboard_error }}</p>
+      </div>
+    {% endif %}
+
     <div class="card">
       <h2>Summary</h2>
       {% if summary %}
@@ -90,7 +97,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const chartData = {{ chart_data|tojson }} || null;
-    if (chartData) {
+    if (chartData && Array.isArray(chartData.labels) && chartData.labels.length > 0) {
       const ctx = document.getElementById('trendChart').getContext('2d');
 
       // create gradient fills
@@ -140,7 +147,16 @@
           }
         }
       });
+    } else {
+      const canvas = document.getElementById('trendChart');
+      const wrap = canvas && canvas.parentElement;
+      if (wrap) {
+        const msg = document.createElement('p');
+        msg.textContent = 'No trend data available for the current selection.';
+        wrap.appendChild(msg);
+      }
     }
   </script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

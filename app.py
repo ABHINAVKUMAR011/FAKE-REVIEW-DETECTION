@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response, session
+from flask import Flask, render_template, request, Response, session, redirect, url_for
 import joblib
 import re
 import pandas as pd
@@ -80,8 +80,61 @@ def get_dashboard_file():
     sid = get_session_id()
     return os.path.join(OUTPUT_DIR, f'upload_predictions_{sid}.csv')
 
+
+def clear_session_dashboard_file():
+    """Delete current session dashboard file if it exists."""
+    path = get_dashboard_file()
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except Exception:
+        pass
+
+
+def get_available_dashboard_file():
+    """Return current session dashboard file only."""
+    session_file = get_dashboard_file()
+    if os.path.exists(session_file):
+        return session_file
+    return session_file
+
+
+def find_review_column(columns):
+    """Find a review column using a case-insensitive, whitespace-tolerant match."""
+    normalized = {str(col).strip().lower(): col for col in columns}
+
+    # Preferred exact match first.
+    if 'review' in normalized:
+        return normalized['review']
+
+    # Common alternatives seen in public review datasets.
+    candidates = [
+        'reviews',
+        'review_text',
+        'reviewtext',
+        'text',
+        'comment',
+        'comments',
+        'content',
+        'feedback',
+        'message'
+    ]
+    for name in candidates:
+        if name in normalized:
+            return normalized[name]
+
+    # Last attempt: any column containing the word "review".
+    for name, original in normalized.items():
+        if 'review' in name:
+            return original
+
+    return None
+
 @app.route("/", methods=["GET"])
 def index():
+    # Home acts as a reset point: no dashboard data until a new upload happens.
+    clear_session_dashboard_file()
+    session['has_fresh_upload'] = False
     return render_template("index.html")
 
 
@@ -134,10 +187,14 @@ def upload():
     if not file:
         return render_template("index.html", table="<p>No file uploaded</p>")
 
+    # Avoid showing stale data if this upload fails midway.
+    clear_session_dashboard_file()
+
     filename = file.filename.lower()
     try:
         if filename.endswith('.csv'):
-            df = pd.read_csv(file)
+            # sep=None auto-detects delimiter (comma, semicolon, tab) with python engine.
+            df = pd.read_csv(file, sep=None, engine='python')
         elif filename.endswith(('.xls', '.xlsx')):
             df = pd.read_excel(file)
         else:
@@ -145,10 +202,20 @@ def upload():
     except Exception as e:
         return render_template("index.html", table=f"<p>Failed to read file: {e}</p>")
 
-    if 'review' not in df.columns:
-        return render_template("index.html", table="<p>File must contain a 'review' column</p>")
+    review_col = find_review_column(df.columns)
+    if review_col is None:
+        available = ', '.join([str(c) for c in df.columns]) if len(df.columns) else 'no columns detected'
+        return render_template(
+            "index.html",
+            table=f"<p>Could not find a review text column. Available columns: {available}</p>"
+        )
+
+    if review_col != 'review':
+        df = df.rename(columns={review_col: 'review'})
 
     df = df.dropna(subset=['review']).copy()
+    if df.empty:
+        return render_template("index.html", table="<p>No non-empty reviews found in the selected file</p>")
 
     # compute predictions and probabilities
     preds = [get_prediction_details(r) for r in df['review']]
@@ -162,19 +229,21 @@ def upload():
         df_to_save.insert(0, 'timestamp', datetime.utcnow().isoformat())
         # Overwrite this session's dashboard data only.
         df_to_save.to_csv(get_dashboard_file(), index=False, encoding='utf-8')
+        session['has_fresh_upload'] = True
     except Exception as e:
         return render_template("index.html", table=f"<p>Failed to save predictions: {e}</p>")
 
-    table_html = df.to_html(classes='pred-table', index=False)
-
-    return render_template("index.html", table=table_html)
+    return redirect(url_for('dashboard'))
 
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
-    dashboard_file = get_dashboard_file()
+    if not session.get('has_fresh_upload', False):
+        return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0, dashboard_error=None)
+
+    dashboard_file = get_available_dashboard_file()
     if not os.path.exists(dashboard_file):
-        return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0)
+        return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0, dashboard_error=None)
 
     try:
         df = pd.read_csv(dashboard_file)
@@ -230,14 +299,18 @@ def dashboard():
         chart_data = {'labels': labels, 'fake': fake_counts, 'genuine': genuine_counts}
 
         return render_template('dashboard.html', summary=summary, table=table_html, chart_data=chart_data,
-                               page=page, per_page=per_page, total_pages=total_pages, q=q, f=f)
-    except Exception:
-        return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0)
+                               page=page, per_page=per_page, total_pages=total_pages, q=q, f=f, dashboard_error=None)
+    except Exception as e:
+        return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0,
+                               dashboard_error=str(e))
 
 
 @app.route('/dashboard/export', methods=['GET'])
 def dashboard_export():
-    dashboard_file = get_dashboard_file()
+    if not session.get('has_fresh_upload', False):
+        return Response('No data', status=404)
+
+    dashboard_file = get_available_dashboard_file()
     if not os.path.exists(dashboard_file):
         return Response('No data', status=404)
 
@@ -258,6 +331,15 @@ def dashboard_export():
                         headers={"Content-Disposition": "attachment;filename=predictions_export.csv"})
     except Exception as e:
         return Response(f'Error exporting: {e}', status=500)
+
+
+@app.after_request
+def add_no_cache_headers(response):
+    """Prevent stale browser cache for dynamic views."""
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)
