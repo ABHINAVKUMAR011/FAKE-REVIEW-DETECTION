@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Prediction Result</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Prediction Result</h1>
+    <div class="card">
+      <h2>Review</h2>
+      <p>{{ review_text }}</p>
+      <h3>Prediction</h3>
+      <div class="result {{ prediction_class }}">{{ prediction }}</div>
+      {% if prob %}
+        <div style="margin-top:12px;">
+          <div style="font-weight:600; margin-bottom:6px;">Model probability: {{ '%.1f'|format(prob*100) }}%</div>
+          <div class="progress">
+            <div class="progress-bar" style="width: {{ (prob*100)|round(1) }}%; background: {% if 'FAKE' in prediction %}linear-gradient(90deg,#ff9a9e,#ff6b6b){% else %}linear-gradient(90deg,#b8ffcf,#6be58a){% endif %};"></div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div style="margin-top:14px;">
+        <button onclick="navigator.clipboard.writeText(document.querySelector('p').innerText)">Copy Review</button>
+        <a href="/dashboard" style="margin-left:12px; color:#eaf7fb;">View Dashboard</a>
+      </div>
+      <p style="margin-top:12px;"><a href="/">Back</a></p>
+    </div>
+  </div>
+</body>
+</html>

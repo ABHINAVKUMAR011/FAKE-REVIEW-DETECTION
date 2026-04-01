@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Fake Review Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="bg-overlay"></div>
+
+<nav style="text-align:center; padding:12px 0; position:relative; z-index:2;">
+    <a href="/" style="color:#0b3561; margin-right:18px; font-weight:600; text-decoration:none;">Home</a>
+    <a href="/dashboard" style="color:#0b3561; margin-right:18px; font-weight:600; text-decoration:none;">Dashboard</a>
+</nav>
+
+<div class="container">
+    <h1>AI-Based Fake Review Detection</h1>
+    <p class="subtitle">Detect fake reviews using NLP & Machine Learning</p>
+
+    <!-- Single Review -->
+    <div class="card">
+        <h2>Check Single Review</h2>
+        <form method="POST" action="/predict">
+            <textarea name="review" placeholder="Enter review text here..." required></textarea>
+            <button type="submit">Analyze Review</button>
+        </form>
+
+        {% if prediction %}
+            <div class="result {{ prediction_class }}">
+                {{ prediction }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- CSV Upload -->
+    <div class="card">
+        <h2>Upload CSV for Bulk Analysis</h2>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv,.xlsx" required>
+            <button type="submit">Upload & Analyze</button>
+        </form>
+
+        {% if table %}
+            <h3>Prediction Results</h3>
+            {{ table | safe }}
+        {% endif %}
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
