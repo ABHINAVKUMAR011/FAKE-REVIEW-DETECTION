@@ -1,15 +1,16 @@
-from flask import Flask, render_template, request, Response, url_for
+from flask import Flask, render_template, request, Response, session
 import joblib
 import re
 import pandas as pd
 from io import BytesIO
 import os
 from datetime import datetime
+from uuid import uuid4
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-only-change-in-production')
 
 OUTPUT_DIR = 'output'
-DASHBOARD_FILE = os.path.join(OUTPUT_DIR, 'upload_predictions.csv')
 SINGLE_PRED_FILE = os.path.join(OUTPUT_DIR, 'single_predictions.csv')
 
 # Load trained model and vectorizer (with graceful error handling)
@@ -64,6 +65,20 @@ def get_prediction_details(review):
     score = behavior_score(review)
     label = "FAKE REVIEW" if (ml_prob > 0.65 and score >= 1) else "GENUINE REVIEW"
     return (label, ml_prob)
+
+
+def get_session_id():
+    """Create a stable per-browser session identifier for data isolation."""
+    sid = session.get('sid')
+    if not sid:
+        sid = uuid4().hex
+        session['sid'] = sid
+    return sid
+
+
+def get_dashboard_file():
+    sid = get_session_id()
+    return os.path.join(OUTPUT_DIR, f'upload_predictions_{sid}.csv')
 
 @app.route("/", methods=["GET"])
 def index():
@@ -140,19 +155,13 @@ def upload():
     df['prediction'] = [p[0] for p in preds]
     df['prob'] = [p[1] for p in preds]
 
-    # save to dashboard CSV
+    # save to a per-session dashboard CSV
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     try:
-        # Keep a copy of the latest uploaded source file for traceability.
-        uploads_dir = 'uploads'
-        os.makedirs(uploads_dir, exist_ok=True)
-        latest_upload_file = os.path.join(uploads_dir, 'latest_uploaded.csv')
-        df[['review']].to_csv(latest_upload_file, index=False, encoding='utf-8')
-
         df_to_save = df[['review','prediction','prob']].copy()
         df_to_save.insert(0, 'timestamp', datetime.utcnow().isoformat())
-        # Overwrite on each upload so dashboard always shows latest uploaded file data.
-        df_to_save.to_csv(DASHBOARD_FILE, index=False, encoding='utf-8')
+        # Overwrite this session's dashboard data only.
+        df_to_save.to_csv(get_dashboard_file(), index=False, encoding='utf-8')
     except Exception as e:
         return render_template("index.html", table=f"<p>Failed to save predictions: {e}</p>")
 
@@ -163,11 +172,12 @@ def upload():
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
-    if not os.path.exists(DASHBOARD_FILE):
+    dashboard_file = get_dashboard_file()
+    if not os.path.exists(dashboard_file):
         return render_template('dashboard.html', summary=None, table=None, chart_data=None, page=1, total_pages=0)
 
     try:
-        df = pd.read_csv(DASHBOARD_FILE)
+        df = pd.read_csv(dashboard_file)
 
         # query params
         q = request.args.get('q', '').strip()
@@ -227,11 +237,12 @@ def dashboard():
 
 @app.route('/dashboard/export', methods=['GET'])
 def dashboard_export():
-    if not os.path.exists(DASHBOARD_FILE):
+    dashboard_file = get_dashboard_file()
+    if not os.path.exists(dashboard_file):
         return Response('No data', status=404)
 
     try:
-        df = pd.read_csv(DASHBOARD_FILE)
+        df = pd.read_csv(dashboard_file)
         q = request.args.get('q', '').strip()
         f = request.args.get('filter', 'all').lower()
         if q:

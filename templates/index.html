@@ -9,14 +9,32 @@
 
 <div class="bg-overlay"></div>
 
-<nav style="text-align:center; padding:12px 0; position:relative; z-index:2;">
-    <a href="/" style="color:#0b3561; margin-right:18px; font-weight:600; text-decoration:none;">Home</a>
-    <a href="/dashboard" style="color:#0b3561; margin-right:18px; font-weight:600; text-decoration:none;">Dashboard</a>
+<nav class="topbar clean">
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+    </div>
 </nav>
 
 <div class="container">
-    <h1>AI-Based Fake Review Detection</h1>
-    <p class="subtitle">Detect fake reviews using NLP & Machine Learning</p>
+    <section class="hero">
+        <h1>AI-Based Fake Review Detection</h1>
+        <p class="subtitle">Analyze one review or upload a file to classify suspicious feedback in seconds.</p>
+        <div class="stats-row">
+            <div class="stat-pill">
+                <div class="label">Model Type</div>
+                <div class="value">TF-IDF + Logistic Regression</div>
+            </div>
+            <div class="stat-pill">
+                <div class="label">Input Modes</div>
+                <div class="value">Single Review and Bulk Upload</div>
+            </div>
+            <div class="stat-pill">
+                <div class="label">Dashboard</div>
+                <div class="value">Private Per Session</div>
+            </div>
+        </div>
+    </section>
 
     <!-- Single Review -->
     <div class="card">
@@ -37,13 +55,16 @@
     <div class="card">
         <h2>Upload CSV for Bulk Analysis</h2>
         <form method="POST" action="/upload" enctype="multipart/form-data">
-            <input type="file" name="file" accept=".csv,.xlsx" required>
+            <div class="file-input-row">
+                <input type="file" name="file" accept=".csv,.xlsx" required>
+                <div class="file-name" id="file-name">No file selected</div>
+            </div>
             <button type="submit">Upload & Analyze</button>
         </form>
 
         {% if table %}
             <h3>Prediction Results</h3>
-            {{ table | safe }}
+            <div class="table-wrap">{{ table | safe }}</div>
         {% endif %}
     </div>
 
