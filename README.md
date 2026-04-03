@@ -11,8 +11,7 @@ The **AI-Based Fake Review Detection System** is designed to help businesses and
 **Why this project?**
 - Fake reviews affect buying decisions and brand credibility.
 - Industry-relevant problem aligned with data analytics, ML, and full-stack development.
-- Showcases end-to-end project skills: 
-- 
+- Showcases end-to-end project skills.
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -32,7 +31,8 @@ The **AI-Based Fake Review Detection System** is designed to help businesses and
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## 🏗️ Architecture
-<img width="448" height="191" alt="image" src="https://github.com/user-attachments/assets/df1781bd-091e-4b9d-bbcd-a57e059ccd21" />
+<img width="1331" height="1600" alt="systemarch" src="https://github.com/user-attachments/assets/845275cb-2588-4471-a019-c11349007e13" />
+
 
 
 
@@ -83,7 +83,7 @@ Evaluation Metrics: Accuracy, Precision, Recall, F1-Score
 **⚡ How to Run Locally**
 
 # Clone the repository
-git clone https://github.com/ABHINAVKUMAR011/AI-BASED-FAKE-REVIEW-DETECTION.git
+git clone https://github.com/ABHINAVKUMAR011/FAKE-REVIEW-DETECTION.git
 
 # Navigate to project folder
 cd AI-FAKE-REVIEW-DETECTION
