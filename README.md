@@ -123,3 +123,12 @@ Make your changes and commit (git commit -m "Add feature")
 Push to the branch (git push origin feature-name)
 
 Open a Pull Request
+
+**WEB INTERFACE**
+<img width="942" height="476" alt="image" src="https://github.com/user-attachments/assets/1276e5db-d293-4dee-a81b-a11b116e42a0" />
+
+<img width="923" height="460" alt="image" src="https://github.com/user-attachments/assets/26657dae-33de-4586-96cb-4d16218f9377" />
+<img width="938" height="469" alt="image" src="https://github.com/user-attachments/assets/6058465d-5431-474a-b811-bac1ddfaad0c" />
+<img width="935" height="455" alt="image" src="https://github.com/user-attachments/assets/7e47092a-ffae-4268-8722-ebe0c412735f" />
+
+
