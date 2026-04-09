@@ -1,8 +1,7 @@
 
 # AI-Based Fake Review Detection System
 https://fake-review-detection-0fyr.onrender.com/
-![Project Banner]
-(https://img.shields.io/badge/Status-Development-yellow) 
+![Project Banner](https://img.shields.io/badge/Status-Development-yellow) 
 ![Python](https://img.shields.io/badge/Python-3.10-blue) 
 ![Flask](https://img.shields.io/badge/Framework-Flask-green)
 ------------------------------------------------------------------------------------------------------------------------------------------------
